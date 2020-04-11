@@ -15,7 +15,7 @@
     //fields
     $fieldLines = [];
     foreach ($header as $headerField) {
-        $tempArray = [ 'key' => $headerField, 'sortable' => false ];
+        $tempArray = [ 'key' => $headerField, 'sortable' => true ];
         if ($headerField === 'matricule') {
             $tempArray['variant'] = 'info';
         }
@@ -26,12 +26,19 @@
     }
     // items
     $jsonLines = [];
+    //$findDuplicates = [];
     foreach ($lines as $line) {
         $valueFields = str_getcsv($line, "\t");
         $assocFields = [];
         foreach ($valueFields as $key => $field) {
             $assocFields[$header[$key]] = $field;
         }
+        /*if (!empty($findDuplicates[$assocFields['matricule']])) {
+            var_dump($assocFields);
+            var_dump($findDuplicates[$assocFields['matricule']]);
+        } else {
+            $findDuplicates[$assocFields['matricule']] = $assocFields;
+        }*/
         $jsonLines[] = $assocFields;
     }
 

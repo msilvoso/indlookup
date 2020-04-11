@@ -26,18 +26,21 @@
 </head>
 <body>
     <div id="app">
-        <form class="form-inline" v-on:submit.prevent="filterList" >
-            <b-form-input class="col-10" v-model="contentFilterInput" placeholder="Introduisez ici votre filtre de recherche!"></b-form-input>
-            <input type="submit" class="col-2 btn btn-primary" >
-        </form>
-        <b-table id="lookupTable" primary-key="matricule" :items="items" :fields="fields" :sort-by.sync="sortBy"
-                 :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
-                 :filter="contentFilter" @filtered="onFiltered" :filter-included-fields="contentFilterIncludedFields"
-                 bordered striped hover ></b-table>
-        <p class="mt-3">Total Rows: {{ rows }}</p>
-        <div v-show="rows > pageLimit">
-            <div class="mt-1">
-                <b-pagination v-model="currentPage" pills :total-rows="rows" :per-page="perPage" :limit="pageLimit" aria-controls="lookupTable" first-number last-number size="lg"></b-pagination>
+        <b-form-input class="col-12" type="search" autocomplete="off" placeholder="Introduisez ici votre filtre de recherche!" @input="filterChange"></b-form-input>
+        <div v-if="rows > itemLimit" class="text-danger">
+            <p class="mt-3" >Nombre d'enregistrements: {{ rows }} - au dessus de {{ itemLimit }} résultats, rien n'est affiché pour des raisons de performance</p>
+        </div>
+        <div v-else class="text-success">
+            <p class="mt-3">Nombre d'enregistrements: {{ rows }}</p>
+        </div>
+        <div v-show="rows <= itemLimit ">
+            <b-table id="lookupTable" :items="items" :fields="fields" :sort-by.sync="sortBy"
+                     :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
+                     bordered striped hover ></b-table>
+            <div v-show="rows > perPage">
+                <div class="mt-1">
+                    <b-pagination v-model="currentPage" pills :total-rows="rows" :per-page="perPage" :limit="pageLimit" aria-controls="lookupTable" first-number last-number size="lg"></b-pagination>
+                </div>
             </div>
         </div>
     </div>
@@ -47,39 +50,54 @@
             data() {
                 return {
                     rows: 0,
-                    contentFilter: null,
-                    contentFilterInput: null,
-                    contentFilterIncludedFields: ['matricule'],
-                    pageLimit: 5,
+                    pageLimit: 3,
                     perPage: 15,
+                    itemLimit: 301,
                     currentPage: 1,
+                    contentFilterInput: null,
                     sortBy: 'age',
                     sortDesc: false,
                     fields: FIELDSJSONREPLACE,
-                    items: ITEMSJSONREPLACE
+                    items: [],
+                    itemTable: ITEMSJSONREPLACE,
+                    filteredItems: []
                 }
             },
             mounted() {
-                this.rows = this.items.length
+                this.rows = this.itemTable.length;
             },
             beforeDestroy() {
                 clearTimeout(this.$_debounceTimer)
             },
             methods: {
-                filterList() {
-                    // Trigger pagination to update the number of buttons/pages due to filtering
-                    clearTimeout(this.$_debounceTimer);
+                filterChange(search) {
+                    clearTimeout(this.$_debounceTimer)
                     this.$_debounceTimer = setTimeout(() => {
-                        this.contentFilter = this.contentFilterInput;
+                        this.contentFilterInput = search;
+                        this.filterList();
                     }, 100)
                 },
-                onFiltered(filteredItems) {
-                    // Trigger pagination to update the number of buttons/pages due to filtering
-                    this.rows = filteredItems.length;
-                    this.currentPage = 1;
+                filterList() {
+                    this.filteredItems =  this.itemTable.filter(this.textMatch);
+                    this.rows = this.filteredItems.length;
+                    if (this.rows <= this.itemLimit) {
+                        this.items = this.filteredItems;
+                        this.currentPage = 1;
+                    } else {
+                        this.items = [];
+                        this.currentPage = 1;
+                    }
                 },
+                textMatch(item) {
+                    var searchTerm = this.contentFilterInput.toLowerCase(),
+                        itemText = (item.matricule + item.denomination + "").toLowerCase();
+                    // remove accented characters
+                    searchTerm = searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    itemText = itemText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    return itemText.indexOf(searchTerm) !== -1;
+                }
             }
-        })
+        });
     </script>
 </body>
 </html>
