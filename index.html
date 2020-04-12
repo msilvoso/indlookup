@@ -78,18 +78,6 @@
                 this.rows = this.itemTable.length;
             },
             methods: {
-                changeFilter(search) {
-                    //this.contentFilterInput = search;
-                    this.refreshTable();
-                },
-                changeLimit(limit) {
-                    //this.itemLimit = limit;
-                    this.refreshTable();
-                },
-                changePerPage(limit) {
-                    //this.perPage = limit;
-                    this.refreshTable();
-                },
                 refreshTable() {
                     if (!this.contentFilterInput) {
                         this.emptySearchString();
