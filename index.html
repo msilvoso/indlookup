@@ -26,13 +26,24 @@
 </head>
 <body>
     <div id="app">
-        <b-form-input class="col-12" type="search" autocomplete="off" placeholder="Introduisez ici votre filtre de recherche!" @input="filterChange"></b-form-input>
-        <div v-if="rows > itemLimit" class="text-danger">
-            <p class="mt-3" >Nombre d'enregistrements: {{ rows }} - au dessus de {{ itemLimit }} résultats, rien n'est affiché pour des raisons de performance</p>
-        </div>
-        <div v-else class="text-success">
-            <p class="mt-3">Nombre d'enregistrements: {{ rows }}</p>
-        </div>
+        <!--<b-input-group prepend="Username" class="mt-3">
+            <b-form-input></b-form-input>
+            <b-input-group-append>
+                <b-button variant="outline-success">Button</b-button>
+                <b-button variant="info">Button</b-button>
+            </b-input-group-append>
+        </b-input-group>-->
+        <b-input-group prepend="Filtre" class="mt-3 col-12">
+            <b-form-input type="search" autofocus="true" autocomplete="off" placeholder="Introduisez ici votre filtre de recherche!" debounce="200" v-model="contentFilterInput" @update="refreshTable"></b-form-input>
+        </b-input-group>
+        <b-input-group prepend="Limite" class="mt-3 col-2">
+            <b-form-input id="itemLimitBox" type="number" autocomplete="off" debounce="200" placeholder="Limite d'enregistrements" v-model="itemLimit" @update="refreshTable"></b-form-input>
+        </b-input-group>
+        <b-input-group prepend="Enr./Page" class="mt-3 col-2">
+            <b-form-input id="perPageBox" type="number" autocomplete="off" debounce="200" placeholder="Enregistrements par page" v-model="perPage" @update="refreshTable"></b-form-input>
+        </b-input-group>
+        <span v-if="rows > itemLimit" class="text-danger" class="col-10">Nombre d'enregistrements: {{ rows }} - au dessus de {{ itemLimit }} résultats, rien n'est affiché pour des raisons de performance</span>
+        <span v-else class="text-success" >Nombre d'enregistrements: {{ rows }}</span>
         <div v-show="rows <= itemLimit ">
             <b-table id="lookupTable" :items="items" :fields="fields" :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
@@ -54,7 +65,7 @@
                     perPage: 15,
                     itemLimit: 301,
                     currentPage: 1,
-                    contentFilterInput: null,
+                    contentFilterInput: "",
                     sortBy: 'age',
                     sortDesc: false,
                     fields: FIELDSJSONREPLACE,
@@ -66,30 +77,46 @@
             mounted() {
                 this.rows = this.itemTable.length;
             },
-            beforeDestroy() {
-                clearTimeout(this.$_debounceTimer)
-            },
             methods: {
-                filterChange(search) {
-                    clearTimeout(this.$_debounceTimer)
-                    this.$_debounceTimer = setTimeout(() => {
-                        this.contentFilterInput = search;
-                        this.filterList();
-                    }, 100)
+                changeFilter(search) {
+                    //this.contentFilterInput = search;
+                    this.refreshTable();
                 },
-                filterList() {
-                    this.filteredItems =  this.itemTable.filter(this.textMatch);
-                    this.rows = this.filteredItems.length;
-                    if (this.rows <= this.itemLimit) {
-                        this.items = this.filteredItems;
-                        this.currentPage = 1;
+                changeLimit(limit) {
+                    //this.itemLimit = limit;
+                    this.refreshTable();
+                },
+                changePerPage(limit) {
+                    //this.perPage = limit;
+                    this.refreshTable();
+                },
+                refreshTable() {
+                    if (!this.contentFilterInput) {
+                        this.emptySearchString();
                     } else {
-                        this.items = [];
-                        this.currentPage = 1;
+                        this.nonEmptySearchString();
                     }
                 },
+                emptySearchString() {
+                    if (this.itemTable.length > this.itemLimit) {
+                        this.items = [];
+                    } else {
+                        this.items = this.itemTable;
+                    }
+                    this.rows = this.itemTable.length;
+                    this.currentPage = 1;
+                },
+                nonEmptySearchString() {
+                    let filteredItems = this.itemTable.filter(this.textMatch);
+                    if (filteredItems.length > this.itemLimit) {
+                        this.items = [];
+                    } else {
+                        this.items = filteredItems;
+                    }
+                    this.rows = filteredItems.length;
+                },
                 textMatch(item) {
-                    var searchTerm = this.contentFilterInput.toLowerCase(),
+                    let searchTerm = this.contentFilterInput.toLowerCase(),
                         itemText = (item.matricule + item.denomination + "").toLowerCase();
                     // remove accented characters
                     searchTerm = searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
