@@ -1,6 +1,8 @@
 # indlookup
 Fast javascript lookup in a tsv list
 
-Put the TSV file exported from Excel into the data/ directory
+transforms a csv/tsv (from excel?) and converts it in a fast sortable and searchable html table 
 
-start the convert script and use the generated index.html - does not need server
+See convert.php script to see how it works
+
+does not need a server, just load the output file into a Browser
