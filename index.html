@@ -61,6 +61,7 @@
                     itemLimit: 301,
                     currentPage: 1,
                     contentFilterInput: "",
+                    normalizedSearchArray: "",
                     sortBy: 'SORTBYFIELDREPLACE',
                     sortDesc: false,
                     fields: FIELDSJSONREPLACE,
@@ -90,6 +91,10 @@
                     this.currentPage = 1;
                 },
                 nonEmptySearchString() {
+                    // remove accented characters
+                    let normalizedSearchTerm = this.contentFilterInput.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+                    this.normalizedSearchArray = normalizedSearchTerm.split(" ");
+
                     let filteredItems = this.itemTable.filter(this.textMatch);
                     if (filteredItems.length > this.itemLimit) {
                         this.items = [];
@@ -99,11 +104,10 @@
                     this.rows = filteredItems.length;
                 },
                 textMatch(item) {
-                    let searchTerm = this.contentFilterInput.toLowerCase(),
-                        itemText = item.normalized_search_field + "";
-                    // remove accented characters
-                    searchTerm = searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    return itemText.indexOf(searchTerm) !== -1;
+                    let itemText = item.normalized_search_field + "";
+                    let match = true;
+                    this.normalizedSearchArray.forEach(searchTerm => match = match && (itemText.indexOf(searchTerm) !== -1));
+                    return match;
                 }
             }
         });
