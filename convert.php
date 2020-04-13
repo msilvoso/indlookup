@@ -10,13 +10,14 @@ class ConvertTsvToSearchableHtmlPage
     private $searchableFields = [];
     private $itemsJson = "";
     private $indexHtml = "";
+    private $initialSortFieldIndex = false;
+    private $initialSortField = "";
 
     public function __construct($filename = '')
     {
         $this->loadHtml();
         if ($filename) {
             $this->importTsv($filename);
-            $this->extractFieldNames();
         }
     }
 
@@ -33,6 +34,16 @@ class ConvertTsvToSearchableHtmlPage
     public function setFieldOption($fieldIndex, $optionName, $optionValue)
     {
         $this->fieldOptions[$fieldIndex] = [ $optionName => $optionValue ];
+    }
+
+    public function setInitialSortFieldIndex($index)
+    {
+        $this->initialSortFieldIndex = $index;
+    }
+
+    public function setInitialSortField($field)
+    {
+        $this->initialSortField = $field;
     }
 
     public function setSearchableFields($indexes)
@@ -68,6 +79,9 @@ class ConvertTsvToSearchableHtmlPage
             if (isset($this->fieldOptions[$numericKey])) {
                 $tempArray = array_merge($tempArray, $this->fieldOptions[$numericKey]);
             }
+            if ($this->initialSortFieldIndex !== false && $this->initialSortFieldIndex === $numericKey) {
+                $this->initialSortField = $headerField;
+            }
             $fields[] = $tempArray;
         }
         $this->fieldsJson = json_encode($fields);
@@ -91,10 +105,12 @@ class ConvertTsvToSearchableHtmlPage
     {
         $this->indexHtml = preg_replace('/FIELDSJSONREPLACE/', $this->fieldsJson, $this->indexHtml);
         $this->indexHtml = preg_replace('/ITEMSJSONREPLACE/', $this->itemsJson, $this->indexHtml);
+        $this->indexHtml = preg_replace('/SORTBYFIELDREPLACE/', $this->initialSortField, $this->indexHtml);
     }
 
     public function processAndSave()
     {
+        $this->extractFieldNames();
         $this->prepareFieldNamesJson();
         $this->prepareItemsJson();
         $this->convertHtml();
@@ -112,6 +128,7 @@ class ConvertTsvToSearchableHtmlPage
 }
 
 $run = new ConvertTsvToSearchableHtmlPage("import.tsv");
+$run->setInitialSortFieldIndex(0);
 $run->setFieldOption(0,'variant','info');
 $run->setFieldOption(9,'variant','danger');
 $run->processAndSave();
