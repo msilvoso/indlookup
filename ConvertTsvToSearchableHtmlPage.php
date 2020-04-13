@@ -12,6 +12,7 @@ class ConvertTsvToSearchableHtmlPage
     private $indexHtml = "";
     private $initialSortFieldIndex = false;
     private $initialSortField = "";
+    private $pageTitle = "indlookup";
 
     public function __construct($filename = '')
     {
@@ -44,6 +45,11 @@ class ConvertTsvToSearchableHtmlPage
     public function setInitialSortField($field)
     {
         $this->initialSortField = $field;
+    }
+
+    public function setTitle($pageTitle)
+    {
+        $this->pageTitle = $pageTitle;
     }
 
     public function setSearchableFields($indexes)
@@ -122,6 +128,7 @@ class ConvertTsvToSearchableHtmlPage
         $this->indexHtml = preg_replace('/FIELDSJSONREPLACE/', $this->fieldsJson, $this->indexHtml);
         $this->indexHtml = preg_replace('/ITEMSJSONREPLACE/', $this->itemsJson, $this->indexHtml);
         $this->indexHtml = preg_replace('/SORTBYFIELDREPLACE/', $this->initialSortField, $this->indexHtml);
+        $this->indexHtml = preg_replace('/TITLEREPLACE/', $this->pageTitle, $this->indexHtml);
     }
 
     public function process()

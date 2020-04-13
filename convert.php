@@ -12,5 +12,7 @@ $run->setFieldOption(0,'variant','info');
 $run->setFieldOption(9,'variant','danger');
 // define the columns thta will be searchable
 $run->setSearchableFields([0,2]);
+// set title of the page
+$run->setTitle("Recherche dans la table");
 // save the resulting html
 $run->processAndSave('public/index.html');
