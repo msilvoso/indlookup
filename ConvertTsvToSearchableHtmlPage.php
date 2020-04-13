@@ -14,15 +14,17 @@ class ConvertTsvToSearchableHtmlPage
     private $initialSortField = "";
     private $pageTitle = "indlookup";
 
-    public function __construct($filename = '')
+    public function __construct($tsvFilename = 'input.tsv', $htmlTemplate = 'index.template.html')
     {
-        $this->loadHtml();
-        if ($filename) {
-            $this->importTsv($filename);
+        if ($htmlTemplate) {
+            $this->loadHtml($htmlTemplate);
+        }
+        if ($tsvFilename) {
+            $this->importTsv($tsvFilename);
         }
     }
 
-    public function loadHtml($filename = 'index.html')
+    public function loadHtml($filename = 'index.template.html')
     {
         $this->indexHtml = file_get_contents($filename);
     }
