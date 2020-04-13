@@ -1,54 +1,117 @@
 <?php
-    $tsvIso = file_get_contents("data/indépendants_cl_moy_avril.txt");
-    $tsv = mb_convert_encoding($tsvIso, 'UTF-8',
-        mb_detect_encoding($tsvIso, 'UTF-8, ISO-8859-1', true));
-    $lines = explode("\r\n", $tsv);
 
-    $header = str_getcsv(
-        preg_replace("/é/","e",
-            mb_convert_case(
-            array_shift($lines)
-            , MB_CASE_LOWER)
-        )
-        , "\t");
+class ConvertTsvToSearchableHtmlPage
+{
+    private $delimiter = "\t";
+    private $tsvLinesArray = [];
+    private $fieldNames = [];
+    private $fieldOptions = [];
+    private $fieldsJson = "";
+    private $searchableFields = [];
+    private $itemsJson = "";
+    private $indexHtml = "";
 
-    //fields
-    $fieldLines = [];
-    foreach ($header as $headerField) {
-        $tempArray = [ 'key' => $headerField, 'sortable' => true ];
-        if ($headerField === 'matricule') {
-            $tempArray['variant'] = 'info';
+    public function __construct($filename = '')
+    {
+        $this->loadHtml();
+        if ($filename) {
+            $this->importTsv($filename);
+            $this->extractFieldNames();
         }
-        if ($headerField === 'nb_ass') {
-            $tempArray['variant'] = 'danger';
-        }
-        $fieldLines[] = $tempArray;
     }
-    // items
-    $jsonLines = [];
-    //$findDuplicates = [];
-    foreach ($lines as $line) {
-        $valueFields = str_getcsv($line, "\t");
-        $assocFields = [];
-        foreach ($valueFields as $key => $field) {
-            $assocFields[$header[$key]] = $field;
-        }
-        /*if (!empty($findDuplicates[$assocFields['matricule']])) {
-            var_dump($assocFields);
-            var_dump($findDuplicates[$assocFields['matricule']]);
+
+    public function loadHtml($filename = 'index.html')
+    {
+        $this->indexHtml = file_get_contents($filename);
+    }
+
+    public function saveHtml($filename = 'index.html')
+    {
+        file_put_contents("public/$filename", $this->indexHtml);
+    }
+
+    public function setFieldOption($fieldIndex, $optionName, $optionValue)
+    {
+        $this->fieldOptions[$fieldIndex] = [ $optionName => $optionValue ];
+    }
+
+    public function setSearchableFields($indexes)
+    {
+        if (!is_array($indexes)) {
+            $this->searchableFields = [ $indexes ];
         } else {
-            $findDuplicates[$assocFields['matricule']] = $assocFields;
-        }*/
-        $jsonLines[] = $assocFields;
+            $this->searchableFields = $indexes;
+        }
     }
 
-    // create the json
-    $fieldsJson = json_encode($fieldLines);
-    $itemsJson = json_encode($jsonLines);
+    public function importTsv($filename = 'import.tsv')
+    {
+        $tsvIso = file_get_contents("data/$filename");
+        $tsv = mb_convert_encoding($tsvIso, 'UTF-8',
+            mb_detect_encoding($tsvIso, 'UTF-8, ISO-8859-1', true));
+        $this->tsvLinesArray = explode("\r\n", $tsv);
+    }
 
-    $indexHtml = file_get_contents('index.html');
+    public function extractFieldNames()
+    {
+        $this->fieldNames = str_getcsv(
+            $this->normalizeChars($this->tsvLinesArray)
+            , $this->delimiter
+        );
+    }
 
-    $indexHtml = preg_replace('/FIELDSJSONREPLACE/', $fieldsJson, $indexHtml);
-    $indexHtml = preg_replace('/ITEMSJSONREPLACE/', $itemsJson, $indexHtml);
+    public function prepareFieldNamesJson()
+    {
+        $fields = [];
+        foreach ($this->fieldNames as $numericKey => $headerField) {
+            $tempArray = ['key' => $headerField, 'sortable' => true];
+            if (isset($this->fieldOptions[$numericKey])) {
+                $tempArray = array_merge($tempArray, $this->fieldOptions[$numericKey]);
+            }
+            $fields[] = $tempArray;
+        }
+        $this->fieldsJson = json_encode($fields);
+    }
 
-    file_put_contents('public/index.html', $indexHtml);
+    public function prepareItemsJson()
+    {
+        $jsonLines = [];
+        foreach ($this->tsvLinesArray as $line) {
+            $valueFields = str_getcsv($line, $this->delimiter);
+            $assocFields = [];
+            foreach ($valueFields as $key => $field) {
+                $assocFields[$this->fieldNames[$key]] = $field;
+            }
+            $jsonLines[] = $assocFields;
+        }
+        $this->itemsJson = json_encode($jsonLines);
+    }
+
+    public function convertHtml()
+    {
+        $this->indexHtml = preg_replace('/FIELDSJSONREPLACE/', $this->fieldsJson, $this->indexHtml);
+        $this->indexHtml = preg_replace('/ITEMSJSONREPLACE/', $this->itemsJson, $this->indexHtml);
+    }
+
+    public function processAndSave()
+    {
+        $this->prepareFieldNamesJson();
+        $this->prepareItemsJson();
+        $this->convertHtml();
+        $this->saveHtml();
+    }
+
+    private function normalizeChars($stringToNormalize)
+    {
+        $stringToNormalize = mb_convert_case(
+            array_shift($stringToNormalize)
+            , MB_CASE_LOWER
+        );
+        return iconv('UTF-8', 'ASCII//TRANSLIT', $stringToNormalize);
+    }
+}
+
+$run = new ConvertTsvToSearchableHtmlPage("import.tsv");
+$run->setFieldOption(0,'variant','info');
+$run->setFieldOption(9,'variant','danger');
+$run->processAndSave();
