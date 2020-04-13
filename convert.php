@@ -7,7 +7,7 @@ require_once "ConvertTsvToSearchableHtmlPage.php";
 $run = new ConvertTsvToSearchableHtmlPage("data/import.tsv");
 // sort initialy by the first field
 $run->setInitialSortFieldIndex(0);
-// add field options (see b-table of Botstrapvue) info is blue, danger is red
+// add field options (see b-table of Bootstrapvue) info is blue, danger is red
 $run->setFieldOption(0,'variant','info');
 $run->setFieldOption(9,'variant','danger');
 // define the columns thta will be searchable
