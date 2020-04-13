@@ -83,7 +83,7 @@ class ConvertTsvToSearchableHtmlPage
             }
 
             if ($this->initialSortFieldIndex !== false && $this->initialSortFieldIndex === $numericKey) {
-                $this->initialSortField = $headerField; // TODO:replace by mutator
+                $this->setInitialSortField($headerField);
             }
 
             $fields[] = $tempArray;
