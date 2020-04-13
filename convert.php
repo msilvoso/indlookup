@@ -66,7 +66,7 @@ class ConvertTsvToSearchableHtmlPage
     public function extractFieldNames()
     {
         $this->fieldNames = str_getcsv(
-            $this->normalizeChars($this->tsvLinesArray)
+            $this->normalizeChars(array_shift($this->tsvLinesArray))
             , $this->delimiter
         );
     }
@@ -75,13 +75,17 @@ class ConvertTsvToSearchableHtmlPage
     {
         $fields = [];
         foreach ($this->fieldNames as $numericKey => $headerField) {
+
             $tempArray = ['key' => $headerField, 'sortable' => true];
+
             if (isset($this->fieldOptions[$numericKey])) {
                 $tempArray = array_merge($tempArray, $this->fieldOptions[$numericKey]);
             }
+
             if ($this->initialSortFieldIndex !== false && $this->initialSortFieldIndex === $numericKey) {
-                $this->initialSortField = $headerField;
+                $this->initialSortField = $headerField; // TODO:replace by mutator
             }
+
             $fields[] = $tempArray;
         }
         $this->fieldsJson = json_encode($fields);
@@ -91,11 +95,23 @@ class ConvertTsvToSearchableHtmlPage
     {
         $jsonLines = [];
         foreach ($this->tsvLinesArray as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
             $valueFields = str_getcsv($line, $this->delimiter);
             $assocFields = [];
             foreach ($valueFields as $key => $field) {
                 $assocFields[$this->fieldNames[$key]] = $field;
             }
+
+            // searchable fields
+            $assocFields['normalized_search_field'] = "";
+            if (count($this->searchableFields) > 0) {
+                foreach($this->searchableFields as $index) {
+                    $assocFields['normalized_search_field'] .= $this->normalizeChars($valueFields[$index], true);
+                }
+            }
+
             $jsonLines[] = $assocFields;
         }
         $this->itemsJson = json_encode($jsonLines);
@@ -117,13 +133,14 @@ class ConvertTsvToSearchableHtmlPage
         $this->saveHtml();
     }
 
-    private function normalizeChars($stringToNormalize)
+    private function normalizeChars($stringToNormalize, $removeSpaces = false)
     {
-        $stringToNormalize = mb_convert_case(
-            array_shift($stringToNormalize)
-            , MB_CASE_LOWER
-        );
-        return iconv('UTF-8', 'ASCII//TRANSLIT', $stringToNormalize);
+        if ($removeSpaces) {
+            $stringToNormalize = preg_replace('/\s/', '', $stringToNormalize);
+        }
+        $stringToNormalize = mb_convert_case($stringToNormalize, MB_CASE_LOWER);
+        $stringToNormalize = iconv('UTF-8', 'ASCII//TRANSLIT', $stringToNormalize);
+        return $stringToNormalize;
     }
 }
 
@@ -131,4 +148,5 @@ $run = new ConvertTsvToSearchableHtmlPage("import.tsv");
 $run->setInitialSortFieldIndex(0);
 $run->setFieldOption(0,'variant','info');
 $run->setFieldOption(9,'variant','danger');
+$run->setSearchableFields([0,2]);
 $run->processAndSave();

@@ -100,10 +100,9 @@
                 },
                 textMatch(item) {
                     let searchTerm = this.contentFilterInput.toLowerCase(),
-                        itemText = (item.matricule + item.denomination + "").toLowerCase();
+                        itemText = item.normalized_search_field + "";
                     // remove accented characters
                     searchTerm = searchTerm.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-                    itemText = itemText.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
                     return itemText.indexOf(searchTerm) !== -1;
                 }
             }
