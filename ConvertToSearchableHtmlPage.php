@@ -1,6 +1,6 @@
 <?php
 
-class ConvertTsvToSearchableHtmlPage
+class ConvertToSearchableHtmlPage
 {
     private $delimiter = "\t";
     private $tsvLinesArray = [];
@@ -14,7 +14,7 @@ class ConvertTsvToSearchableHtmlPage
     private $initialSortField = "";
     private $pageTitle = "indlookup";
 
-    public function __construct($tsvFilename = 'input.tsv', $htmlTemplate = 'index.template.html')
+    public function __construct($tsvFilename = 'input.tsv', $delimiter = "\t", $htmlTemplate = 'index.template.html')
     {
         if ($htmlTemplate) {
             $this->loadHtml($htmlTemplate);
@@ -22,6 +22,12 @@ class ConvertTsvToSearchableHtmlPage
         if ($tsvFilename) {
             $this->importTsv($tsvFilename);
         }
+        $this->setDelimiter($delimiter);
+    }
+
+    public function setDelimiter($delimiter)
+    {
+        $this->delimiter = $delimiter;
     }
 
     public function loadHtml($filename = 'index.template.html')
