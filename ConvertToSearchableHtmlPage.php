@@ -132,6 +132,36 @@ class ConvertToSearchableHtmlPage
         $this->rowOptions[] = [ 'column' => $column, 'option' => $option, 'test' => $test, 'compareTo' => $compareTo, 'applyTo' => $applyTo ];
     }
 
+    public function prepareItemsJson()
+    {
+
+        $jsonLines = [];
+        foreach ($this->tsvLinesArray as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            $valueFields = str_getcsv($line, $this->delimiter);
+            $assocFields = [];
+            foreach ($valueFields as $key => $field) {
+                $assocFields[$this->fieldNames[$key]] = $field;
+            }
+
+            // searchable fields - create Index field
+            $assocFields['normalized_search_field'] = "";
+            if (count($this->searchableFields) > 0) {
+                foreach($this->searchableFields as $index) {
+                    $assocFields['normalized_search_field'] .= $this->normalizeChars($valueFields[$index], true);
+                }
+            }
+
+            // row Options
+            $assocFields = array_merge($assocFields, $this->getRowOptions($valueFields));
+
+            $jsonLines[] = $assocFields;
+        }
+        $this->itemsJson = json_encode($jsonLines);
+    }
+
     private function getColumnName($numericId)
     {
         return $this->fieldNames[$numericId];
@@ -183,36 +213,6 @@ class ConvertToSearchableHtmlPage
             }
         }
         return $resultingOptions;
-    }
-
-    public function prepareItemsJson()
-    {
-
-        $jsonLines = [];
-        foreach ($this->tsvLinesArray as $line) {
-            if (trim($line) === '') {
-                continue;
-            }
-            $valueFields = str_getcsv($line, $this->delimiter);
-            $assocFields = [];
-            foreach ($valueFields as $key => $field) {
-                $assocFields[$this->fieldNames[$key]] = $field;
-            }
-
-            // searchable fields - create Index field
-            $assocFields['normalized_search_field'] = "";
-            if (count($this->searchableFields) > 0) {
-                foreach($this->searchableFields as $index) {
-                    $assocFields['normalized_search_field'] .= $this->normalizeChars($valueFields[$index], true);
-                }
-            }
-
-            // row Options
-            $assocFields = array_merge($assocFields, $this->getRowOptions($valueFields));
-
-            $jsonLines[] = $assocFields;
-        }
-        $this->itemsJson = json_encode($jsonLines);
     }
 
     public function convertHtml()
