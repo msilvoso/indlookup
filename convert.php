@@ -10,14 +10,20 @@ $run->setInitialSortFieldIndex(0);
 // hide a column
 $run->hideColumns(11);
 // add field options (see b-table of Bootstrapvue) info is blue, danger is red
-$run->setFieldOption(0,'variant','info');
+$run->setFieldOption(0,'variant','primary');
 // colorize rows
-$run->setRowOptions(11, 'danger',
-    ConvertToSearchableHtmlPage::CELL_IS_SET,
-    0,
+$run->setRowOptions(11, 'warning',
+    ConvertToSearchableHtmlPage::CELL_IS_EQUAL,
+    2,
     ConvertToSearchableHtmlPage::WHOLE_ROW
 );
-$run->setRowOptions(10, 'warning',
+// colorize rows
+$run->setRowOptions(11, 'danger',
+    ConvertToSearchableHtmlPage::CELL_IS_EQUAL,
+    1,
+    ConvertToSearchableHtmlPage::WHOLE_ROW
+);
+$run->setRowOptions(10, 'info',
     ConvertToSearchableHtmlPage::CELL_IS_GREATER_OR_EQUAL,
     9,
     ConvertToSearchableHtmlPage::ONLY_CELL
