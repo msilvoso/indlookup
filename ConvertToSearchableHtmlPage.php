@@ -216,16 +216,29 @@ class ConvertToSearchableHtmlPage
         $tsvIso = file_get_contents("$filename");
         $tsv = mb_convert_encoding($tsvIso, 'UTF-8',
             mb_detect_encoding($tsvIso, 'UTF-8, ISO-8859-1', true));
-        $this->tsvLinesArray = explode("\r\n", $tsv);
+        $tsvLines = explode("\r\n", $tsv);
+
+        $firstLine = array_shift($tsvLines);
+        $this->extractFieldNames($firstLine);
+
+        // parse csv/tsv to array
+        $parsedTsvLines = [];
+        foreach ($tsvLines as $line) {
+            if (trim($line) === '') {
+                continue;
+            }
+            $parsedTsvLines[] = str_getcsv($line, $this->delimiter);
+        }
+        $this->setTsvLinesArray($parsedTsvLines);
     }
 
     /**
      * extract the names of the columns from the first row
      */
-    public function extractFieldNames()
+    private function extractFieldNames($firstLine)
     {
         $this->fieldNames = str_getcsv(
-            $this->normalizeChars(array_shift($this->tsvLinesArray))
+            $this->normalizeChars($firstLine)
             , $this->delimiter
         );
     }
@@ -272,15 +285,10 @@ class ConvertToSearchableHtmlPage
      */
     public function prepareItemsJson()
     {
-
         $jsonLines = [];
-        foreach ($this->tsvLinesArray as $line) {
-            if (trim($line) === '') {
-                continue;
-            }
-            $valueFields = str_getcsv($line, $this->delimiter);
+        foreach ($this->getTsvLinesArray() as $line) {
             $assocFields = [];
-            foreach ($valueFields as $key => $field) {
+            foreach ($line as $key => $field) {
                 $assocFields[$this->fieldNames[$key]] = $field;
             }
 
@@ -288,12 +296,12 @@ class ConvertToSearchableHtmlPage
             $assocFields['normalized_search_field'] = "";
             if (count($this->searchableFields) > 0) {
                 foreach($this->searchableFields as $index) {
-                    $assocFields['normalized_search_field'] .= $this->normalizeChars($valueFields[$index], true);
+                    $assocFields['normalized_search_field'] .= $this->normalizeChars($line[$index], true);
                 }
             }
 
             // row Options
-            $assocFields = array_merge($assocFields, $this->getRowOptions($valueFields));
+            $assocFields = array_merge($assocFields, $this->getRowOptions($line));
 
             $jsonLines[] = $assocFields;
         }
@@ -349,7 +357,6 @@ class ConvertToSearchableHtmlPage
      */
     public function process()
     {
-        $this->extractFieldNames();
         $this->prepareFieldNamesJson();
         $this->prepareItemsJson();
         $this->replacePlaceholdersInHtmlTemplate();
