@@ -13,7 +13,7 @@ $run->setInitialSortFieldIndex(0);
 // hide a column
 $run->hideColumns(11);
 // add field options (see b-table of Bootstrapvue) info is blue, danger is red
-$run->setFieldOption(0,'variant','primary');
+$run->setFieldOption(0, 'variant', 'primary');
 // colorize rows
 $run->setRowOptions(11, 'warning',
     ConvertToSearchableHtmlPage::CELL_IS_EQUAL,
@@ -37,7 +37,7 @@ $run->setRowOptions(10, 'success',
     ConvertToSearchableHtmlPage::ONLY_CELL
 );
 // define the columns thta will be searchable
-$run->setSearchableFields([0,2,7]);
+$run->setSearchableFields([0, 2, 7]);
 // set title of the page
 $run->setTitle("Recherche dans la table");
 // save the resulting html

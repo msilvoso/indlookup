@@ -11,7 +11,7 @@ class ConvertToSearchableHtmlPage
     const CELL_IS_GREATER = 4;
     const CELL_IS_LOWER = 8;
     const CELL_IS_GREATER_OR_EQUAL = 16;
-    const CELL_IS_LOWER_OR_EQUAL =32;
+    const CELL_IS_LOWER_OR_EQUAL = 32;
     // type conversions
     const CONVERT_TO_INT = 1;
     const CONVERT_TO_FLOAT = 2;
@@ -72,7 +72,7 @@ class ConvertToSearchableHtmlPage
      */
     public function setFieldOption($fieldIndex, $optionName, $optionValue)
     {
-        $this->fieldOptions[$fieldIndex] = [ $optionName => $optionValue ];
+        $this->fieldOptions[$fieldIndex] = [$optionName => $optionValue];
     }
 
     /** @var string the resulting fields json that will be passed to the b-table */
@@ -87,7 +87,7 @@ class ConvertToSearchableHtmlPage
     public function setSearchableFields($indexes)
     {
         if (!is_array($indexes)) {
-            $this->searchableFields = [ $indexes ];
+            $this->searchableFields = [$indexes];
         } else {
             $this->searchableFields = $indexes;
         }
@@ -135,23 +135,23 @@ class ConvertToSearchableHtmlPage
     /** @var array indexes of the columns that have to be hidden in the b-table */
     private $hiddenColumns = [];
 
-    /** @var array  extra formatting applied on fields or row an a certain condition*/
+    /** @var array  extra formatting applied on fields or row an a certain condition */
     private $rowOptions = [];
 
     /**
-     * @param int    $column       the field/column on which the test is going to be done
-     * @param string $option       the option that has to be set
+     * @param int    $column    the field/column on which the test is going to be done
+     * @param string $option    the option that has to be set
      * @param int    $condition
-     * @param int    $compareTo    the value to which the field has to be compared to
-     * @param int    $applyTo      apply the formatting to the field or the whole row
+     * @param int    $compareTo the value to which the field has to be compared to
+     * @param int    $applyTo   apply the formatting to the field or the whole row
      */
-    public function setRowOptions($column, $option, $condition = self::CELL_IS_SET, $compareTo = 0,  $applyTo = self::WHOLE_ROW)
+    public function setRowOptions($column, $option, $condition = self::CELL_IS_SET, $compareTo = 0, $applyTo = self::WHOLE_ROW)
     {
-        $this->rowOptions[] = ['column' => $column, 'option' => $option, 'condition' => $condition, 'compareTo' => $compareTo, 'applyTo' => $applyTo ];
+        $this->rowOptions[] = ['column' => $column, 'option' => $option, 'condition' => $condition, 'compareTo' => $compareTo, 'applyTo' => $applyTo];
     }
 
     /**
-     * @param array $valueFields  the currently processed line
+     * @param array $valueFields the currently processed line
      *
      * @return array
      */
@@ -226,8 +226,8 @@ class ConvertToSearchableHtmlPage
     private function convertColumn($index, $type)
     {
         $convertedTsv = $this->getTsvLinesArray();
-        foreach($convertedTsv as $key => $value) {
-            switch($type) {
+        foreach ($convertedTsv as $key => $value) {
+            switch ($type) {
                 case self::CONVERT_TO_INT:
                     $convertedTsv[$key][$index] = (int)$value[$index];
                     break;
@@ -296,7 +296,7 @@ class ConvertToSearchableHtmlPage
     public function hideColumns($columns)
     {
         if (!is_array($columns)) {
-            $this->hiddenColumns = [ $columns ];
+            $this->hiddenColumns = [$columns];
         } else {
             $this->hiddenColumns = $columns;
         }
@@ -342,7 +342,7 @@ class ConvertToSearchableHtmlPage
             // searchable fields - create Index field
             $assocFields['normalized_search_field'] = "";
             if (count($this->searchableFields) > 0) {
-                foreach($this->searchableFields as $index) {
+                foreach ($this->searchableFields as $index) {
                     $assocFields['normalized_search_field'] .= $this->normalizeChars($line[$index], true);
                 }
             }
@@ -356,10 +356,11 @@ class ConvertToSearchableHtmlPage
     }
 
     /**
-     * @param $value
-     * @param $condition
+     * @param       $value
+     * @param       $condition
      * @param mixed $compareTo the value to which to compare
      *                         Type juggling -> the content of the field is compared to a number when this is an number
+     *
      * @return bool
      */
     private function rowColumnOptionCondition($value, $condition, $compareTo)
@@ -367,7 +368,7 @@ class ConvertToSearchableHtmlPage
         $empty = $value !== "";
         $result = $empty; // initialize with "true if non empty"
 
-        switch( $condition & 1022 ) { // remove bit 1 if present -> do not test for "is set"
+        switch ($condition & 1022) { // remove bit 1 if present -> do not test for "is set"
             // these are mutually exclusive
             case self::CELL_IS_EQUAL:
                 $result = $value == $compareTo;
@@ -385,7 +386,7 @@ class ConvertToSearchableHtmlPage
                 $result = $value <= $compareTo;
                 break;
         }
-        if ( $condition & 1 ) {
+        if ($condition & 1) {
             $result = $result && $empty; // and check if non empty
         }
         return $result;
