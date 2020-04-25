@@ -5,6 +5,9 @@
 require_once "ConvertToSearchableHtmlPage.php";
 // instatiate and load our covnerted Excel file import.tsv from data
 $run = new ConvertToSearchableHtmlPage("data/import.tsv");
+// convert column 10 to float for the sorting to be correct
+// (b-table sorting compares strings which causes problems with negative numbers)
+$run->convertColumnToFloat(10);
 // sort initialy by the first field
 $run->setInitialSortFieldIndex(0);
 // hide a column

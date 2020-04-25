@@ -2,19 +2,23 @@
 
 class ConvertToSearchableHtmlPage
 {
+    // apply to for row options
     const WHOLE_ROW = 0;
     const ONLY_CELL = 1;
+    // conditions for row options
     const CELL_IS_SET = 1;
     const CELL_IS_EQUAL = 2;
     const CELL_IS_GREATER = 4;
-    const CELL_IS_LOWER =8;
+    const CELL_IS_LOWER = 8;
     const CELL_IS_GREATER_OR_EQUAL = 16;
     const CELL_IS_LOWER_OR_EQUAL =32;
+    // type conversions
+    const CONVERT_TO_INT = 1;
+    const CONVERT_TO_FLOAT = 2;
 
     //
     // Attributes
     //
-
     /** @var string the delimiter character of the CSV */
     private $delimiter = "\t";
 
@@ -193,6 +197,49 @@ class ConvertToSearchableHtmlPage
     }
 
     /**
+     * Convert the column to int
+     *
+     * @param $index int index of the column to convert
+     */
+    public function convertColumnToInt($index)
+    {
+        $this->convertColumn($index, self::CONVERT_TO_INT);
+    }
+
+    /**
+     * Convert the column to float
+     *
+     * @param $index int index of the column to convert
+     */
+    public function convertColumnToFloat($index)
+    {
+        $this->convertColumn($index, self::CONVERT_TO_FLOAT);
+    }
+
+    /**
+     * By default all values are of type string, which creates problems when sorting
+     * Convert to number
+     *
+     * @param $index
+     * @param $type
+     */
+    private function convertColumn($index, $type)
+    {
+        $convertedTsv = $this->getTsvLinesArray();
+        foreach($convertedTsv as $key => $value) {
+            switch($type) {
+                case self::CONVERT_TO_INT:
+                    $convertedTsv[$key][$index] = (int)$value[$index];
+                    break;
+                case self::CONVERT_TO_FLOAT:
+                    $convertedTsv[$key][$index] = (float)$value[$index];
+                    break;
+            }
+        }
+        $this->setTsvLinesArray($convertedTsv);
+    }
+
+    /**
      * @param string $filename
      */
     public function loadHtmlTemplate($filename = 'index.template.html')
@@ -311,16 +358,16 @@ class ConvertToSearchableHtmlPage
     /**
      * @param $value
      * @param $condition
-     * @param $compareTo
-     *
+     * @param mixed $compareTo the value to which to compare
+     *                         Type juggling -> the content of the field is compared to a number when this is an number
      * @return bool
      */
     private function rowColumnOptionCondition($value, $condition, $compareTo)
     {
-        $empty = $value != "";
+        $empty = $value !== "";
         $result = $empty; // initialize with "true if non empty"
 
-        switch( $condition & 1022 ) { // remove 1 if present
+        switch( $condition & 1022 ) { // remove bit 1 if present -> do not test for "is set"
             // these are mutually exclusive
             case self::CELL_IS_EQUAL:
                 $result = $value == $compareTo;
