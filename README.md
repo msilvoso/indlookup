@@ -13,7 +13,7 @@ does not need a server, just load the output file into a Browser
 // Example convert file
 //
 use IndLookup\ConvertToSearchableHtmlPage;
-// instatiate and load our covnerted Excel file import.tsv from data
+// instantiate and load our converted Excel file import.tsv from data
 $run = new ConvertToSearchableHtmlPage("data/import.tsv");
 // convert column 10 to float for the sorting to be correct
 // (b-table sorting does a string compare on strings which causes problems with negative numbers)
