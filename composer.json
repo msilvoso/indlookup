@@ -1,0 +1,15 @@
+{
+  "name": "msilvoso/indlookup",
+  "description": "Php Class to convert a CSV/TSV file to a fast HTML/Javascript lookup table",
+  "minimum-stability": "stable",
+  "license": "LGPL-3.0-or-later",
+  "require": {
+    "php": "^5.6 || ^7.0",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Indlookup\\": "src/"
+    }
+  }
+}

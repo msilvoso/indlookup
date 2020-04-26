@@ -1,5 +1,9 @@
 <?php
 
+namespace IndLookup;
+
+define("ROOT", dirname(__DIR__));
+
 class ConvertToSearchableHtmlPage
 {
     // apply to for row options
@@ -20,7 +24,7 @@ class ConvertToSearchableHtmlPage
     // Attributes
     //
     /** @var string the delimiter character of the CSV */
-    private $delimiter = "\t";
+    private $delimiter;
 
     /**
      * @param $delimiter
@@ -70,7 +74,7 @@ class ConvertToSearchableHtmlPage
      * @param $optionName
      * @param $optionValue
      */
-    public function setFieldOption($fieldIndex, $optionName, $optionValue)
+    public function setColumnOption($fieldIndex, $optionName, $optionValue)
     {
         $this->fieldOptions[$fieldIndex] = [$optionName => $optionValue];
     }
@@ -185,7 +189,8 @@ class ConvertToSearchableHtmlPage
      * @param string $delimiter
      * @param string $htmlTemplate
      */
-    public function __construct($tsvFilename = 'input.tsv', $delimiter = "\t", $htmlTemplate = 'index.template.html')
+    public function __construct($tsvFilename,
+        $delimiter = "\t", $htmlTemplate = ROOT.'template/index.template.html')
     {
         if ($htmlTemplate) {
             $this->loadHtmlTemplate($htmlTemplate);

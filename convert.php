@@ -2,18 +2,18 @@
 <?php
 // Example convert file
 //
-require_once "ConvertToSearchableHtmlPage.php";
+use IndLookup\ConvertToSearchableHtmlPage;
 // instatiate and load our covnerted Excel file import.tsv from data
 $run = new ConvertToSearchableHtmlPage("data/import.tsv");
 // convert column 10 to float for the sorting to be correct
-// (b-table sorting compares strings which causes problems with negative numbers)
+// (b-table sorting does a string compare on strings which causes problems with negative numbers)
 $run->convertColumnToFloat(10);
-// sort initialy by the first field
+// sort initially by the first field
 $run->setInitialSortFieldIndex(0);
 // hide a column
 $run->hideColumns(11);
 // add field options (see b-table of Bootstrapvue) info is blue, danger is red
-$run->setFieldOption(0, 'variant', 'primary');
+$run->setColumnOption(0, 'variant', 'primary');
 // colorize rows
 $run->setRowOptions(11, 'warning',
     ConvertToSearchableHtmlPage::CELL_IS_EQUAL,
@@ -36,7 +36,7 @@ $run->setRowOptions(10, 'success',
     9,
     ConvertToSearchableHtmlPage::ONLY_CELL
 );
-// define the columns thta will be searchable
+// define the columns that will be searchable
 $run->setSearchableFields([0, 2, 7]);
 // set title of the page
 $run->setTitle("Recherche dans la table");
