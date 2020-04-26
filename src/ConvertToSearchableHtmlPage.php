@@ -190,7 +190,7 @@ class ConvertToSearchableHtmlPage
      * @param string $htmlTemplate
      */
     public function __construct($tsvFilename,
-        $delimiter = "\t", $htmlTemplate = ROOT.'template/index.template.html')
+        $delimiter = "\t", $htmlTemplate = ROOT.'/template/index.template.html')
     {
         if ($htmlTemplate) {
             $this->loadHtmlTemplate($htmlTemplate);
