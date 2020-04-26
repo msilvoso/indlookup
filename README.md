@@ -3,18 +3,33 @@ Fast javascript lookup in a tsv list
 
 transforms a csv/tsv (from excel?) and converts it in a fast sortable and searchable html table 
 
-See convert.php script to see how it works
-
 does not need a server, just load the output file into a Browser
 
+Composer sample file
+```json
+{
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "https://github.com/msilvoso/indlookup.git"
+    }
+  ],
+  "require": {
+    "msilvoso/indlookup": "master@dev"
+  }
+}
+```
+
+Convert script example
 ```php
 #!/usr/bin/env php
 <?php
 // Example convert file
 //
+require "vendor/autoload.php";
 use IndLookup\ConvertToSearchableHtmlPage;
 // instantiate and load our converted Excel file import.tsv from data
-$run = new ConvertToSearchableHtmlPage("data/import.tsv");
+$run = new ConvertToSearchableHtmlPage("import.tsv");
 // convert column 10 to float for the sorting to be correct
 // (b-table sorting does a string compare on strings which causes problems with negative numbers)
 $run->convertColumnToFloat(10);
@@ -51,5 +66,5 @@ $run->setSearchableFields([0, 2, 7]);
 // set title of the page
 $run->setTitle("Recherche dans la table");
 // save the resulting html
-$run->processAndSave('public/index.html');
+$run->processAndSave('index.html');
 ```

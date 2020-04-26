@@ -27,6 +27,14 @@ class ConvertToSearchableHtmlPage
     private $delimiter;
 
     /**
+     * @return string
+     */
+    public function getDelimiter(): string
+    {
+        return $this->delimiter;
+    }
+
+    /**
      * @param $delimiter
      */
     public function setDelimiter($delimiter)
@@ -192,13 +200,9 @@ class ConvertToSearchableHtmlPage
     public function __construct($tsvFilename,
         $delimiter = "\t", $htmlTemplate = ROOT.'/template/index.template.html')
     {
-        if ($htmlTemplate) {
-            $this->loadHtmlTemplate($htmlTemplate);
-        }
-        if ($tsvFilename) {
-            $this->importTsv($tsvFilename);
-        }
         $this->setDelimiter($delimiter);
+        $this->loadHtmlTemplate($htmlTemplate);
+        $this->importTsv($tsvFilename);
     }
 
     /**
@@ -279,7 +283,7 @@ class ConvertToSearchableHtmlPage
             if (trim($line) === '') {
                 continue;
             }
-            $parsedTsvLines[] = str_getcsv($line, $this->delimiter);
+            $parsedTsvLines[] = str_getcsv($line, $this->getDelimiter());
         }
         $this->setTsvLinesArray($parsedTsvLines);
     }
@@ -291,7 +295,7 @@ class ConvertToSearchableHtmlPage
     {
         $this->fieldNames = str_getcsv(
             $this->normalizeChars($firstLine)
-            , $this->delimiter
+            , $this->getDelimiter()
         );
     }
 
