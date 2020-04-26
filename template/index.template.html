@@ -104,7 +104,7 @@
                     this.rows = filteredItems.length;
                 },
                 textMatch(item) {
-                    let itemText = item.normalized_search_field + "";
+                    let itemText = item.normalized_search_column + "";
                     let match = true;
                     this.normalizedSearchArray.forEach(searchTerm => match = match && (itemText.indexOf(searchTerm) !== -1));
                     return match;

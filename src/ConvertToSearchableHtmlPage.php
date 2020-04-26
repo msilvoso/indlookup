@@ -62,46 +62,46 @@ class ConvertToSearchableHtmlPage
     }
 
     /** @var array the first line of the tsv contains the names of the fields/columns */
-    private $fieldNames = [];
+    private $columnNames = [];
 
     /**
      * @param $numericId
      *
      * @return mixed
      */
-    private function getFieldName($numericId)
+    private function getColumnName($numericId)
     {
-        return $this->fieldNames[$numericId];
+        return $this->columnNames[$numericId];
     }
 
     /** @var array formatting applied to a to a column without condition */
-    private $fieldOptions = [];
+    private $columnOptions = [];
 
     /**
-     * @param $fieldIndex
+     * @param $columnIndex
      * @param $optionName
      * @param $optionValue
      */
-    public function setColumnOption($fieldIndex, $optionName, $optionValue)
+    public function setColumnOption($columnIndex, $optionName, $optionValue)
     {
-        $this->fieldOptions[$fieldIndex] = [$optionName => $optionValue];
+        $this->columnOptions[$columnIndex] = [$optionName => $optionValue];
     }
 
     /** @var string the resulting fields json that will be passed to the b-table */
-    private $fieldsJson = "";
+    private $columnsJson = "";
 
     /** @var array the numeric index of the columns that have to be searchable */
-    private $searchableFields = [];
+    private $searchableColumns = [];
 
     /**
      * @param $indexes
      */
-    public function setSearchableFields($indexes)
+    public function setSearchableColumns($indexes)
     {
         if (!is_array($indexes)) {
-            $this->searchableFields = [$indexes];
+            $this->searchableColumns = [$indexes];
         } else {
-            $this->searchableFields = $indexes;
+            $this->searchableColumns = $indexes;
         }
     }
 
@@ -112,25 +112,25 @@ class ConvertToSearchableHtmlPage
     private $indexHtml = "";
 
     /** @var mixed the column index that has to be sorted by default */
-    private $initialSortFieldIndex = false;
+    private $initialSortColumnIndex = false;
 
     /**
      * @param $index
      */
-    public function setInitialSortFieldIndex($index)
+    public function setInitialSortColumnIndex($index)
     {
-        $this->initialSortFieldIndex = $index;
+        $this->initialSortColumnIndex = $index;
     }
 
     /** @var string the column that has to be sorted by default */
-    private $initialSortField = "";
+    private $initialSortColumn = "";
 
     /**
-     * @param $field
+     * @param $column
      */
-    public function setInitialSortField($field)
+    public function setInitialSortColumn($column)
     {
-        $this->initialSortField = $field;
+        $this->initialSortColumn = $column;
     }
 
     /** @var string the page title in the head of the generated HTML */
@@ -147,15 +147,15 @@ class ConvertToSearchableHtmlPage
     /** @var array indexes of the columns that have to be hidden in the b-table */
     private $hiddenColumns = [];
 
-    /** @var array  extra formatting applied on fields or row an a certain condition */
+    /** @var array  extra formatting applied on columns or row an a certain condition */
     private $rowOptions = [];
 
     /**
      * @param int    $column    the field/column on which the test is going to be done
      * @param string $option    the option that has to be set
      * @param int    $condition
-     * @param int    $compareTo the value to which the field has to be compared to
-     * @param int    $applyTo   apply the formatting to the field or the whole row
+     * @param int    $compareTo the value to which the column has to be compared to
+     * @param int    $applyTo   apply the formatting to the column or the whole row
      */
     public function setRowOptions($column, $option, $condition = self::CELL_IS_SET, $compareTo = 0, $applyTo = self::WHOLE_ROW)
     {
@@ -163,23 +163,23 @@ class ConvertToSearchableHtmlPage
     }
 
     /**
-     * @param array $valueFields the currently processed line
+     * @param array $valueColumns the currently processed line
      *
      * @return array
      */
-    private function getRowOptions($valueFields)
+    private function getRowOptions($valueColumns)
     {
         $resultingOptions = [];
         foreach ($this->rowOptions as $rowOption) {
             if ($this->rowColumnOptionCondition(
-                $valueFields[$rowOption['column']],
+                $valueColumns[$rowOption['column']],
                 $rowOption['condition'],
                 $rowOption['compareTo']
             )) {
                 if ($rowOption['applyTo'] == self::WHOLE_ROW) {
                     $resultingOptions['_rowVariant'] = $rowOption['option'];
                 } else {
-                    $resultingOptions['_cellVariants'][$this->getFieldName($rowOption['column'])] = $rowOption['option'];
+                    $resultingOptions['_cellVariants'][$this->getColumnName($rowOption['column'])] = $rowOption['option'];
                 }
             }
         }
@@ -275,7 +275,7 @@ class ConvertToSearchableHtmlPage
         $tsvLines = explode("\r\n", $tsv);
 
         $firstLine = array_shift($tsvLines);
-        $this->extractFieldNames($firstLine);
+        $this->extractColumnNames($firstLine);
 
         // parse csv/tsv to array
         $parsedTsvLines = [];
@@ -291,9 +291,9 @@ class ConvertToSearchableHtmlPage
     /**
      * extract the names of the columns from the first row
      */
-    private function extractFieldNames($firstLine)
+    private function extractColumnNames($firstLine)
     {
-        $this->fieldNames = str_getcsv(
+        $this->columnNames = str_getcsv(
             $this->normalizeChars($firstLine)
             , $this->getDelimiter()
         );
@@ -312,28 +312,28 @@ class ConvertToSearchableHtmlPage
     }
 
     /**
-     * create the JSON that will be passed to the b-table for the fieldnames
+     * create the JSON that will be passed to the b-table for the column names
      */
-    public function prepareFieldNamesJson()
+    public function prepareColumnNamesJson()
     {
-        $fields = [];
-        foreach ($this->fieldNames as $numericKey => $headerField) {
+        $columns = [];
+        foreach ($this->columnNames as $numericKey => $headerColumn) {
             if (in_array($numericKey, $this->hiddenColumns)) {
                 continue;
             }
-            $tempArray = ['key' => $headerField, 'sortable' => true];
+            $tempArray = ['key' => $headerColumn, 'sortable' => true];
 
-            if (isset($this->fieldOptions[$numericKey])) {
-                $tempArray = array_merge($tempArray, $this->fieldOptions[$numericKey]);
+            if (isset($this->columnOptions[$numericKey])) {
+                $tempArray = array_merge($tempArray, $this->columnOptions[$numericKey]);
             }
 
-            if ($this->initialSortFieldIndex !== false && $this->initialSortFieldIndex === $numericKey) {
-                $this->setInitialSortField($headerField);
+            if ($this->initialSortColumnIndex !== false && $this->initialSortColumnIndex === $numericKey) {
+                $this->setInitialSortColumn($headerColumn);
             }
 
-            $fields[] = $tempArray;
+            $columns[] = $tempArray;
         }
-        $this->fieldsJson = json_encode($fields);
+        $this->columnsJson = json_encode($columns);
     }
 
     /**
@@ -343,23 +343,23 @@ class ConvertToSearchableHtmlPage
     {
         $jsonLines = [];
         foreach ($this->getTsvLinesArray() as $line) {
-            $assocFields = [];
-            foreach ($line as $key => $field) {
-                $assocFields[$this->fieldNames[$key]] = $field;
+            $assocColumns = [];
+            foreach ($line as $key => $column) {
+                $assocColumns[$this->columnNames[$key]] = $column;
             }
 
-            // searchable fields - create Index field
-            $assocFields['normalized_search_field'] = "";
-            if (count($this->searchableFields) > 0) {
-                foreach ($this->searchableFields as $index) {
-                    $assocFields['normalized_search_field'] .= $this->normalizeChars($line[$index], true);
+            // searchable columns - create Index column
+            $assocColumns['normalized_search_column'] = "";
+            if (count($this->searchableColumns) > 0) {
+                foreach ($this->searchableColumns as $index) {
+                    $assocColumns['normalized_search_column'] .= $this->normalizeChars($line[$index], true);
                 }
             }
 
             // row Options
-            $assocFields = array_merge($assocFields, $this->getRowOptions($line));
+            $assocColumns = array_merge($assocColumns, $this->getRowOptions($line));
 
-            $jsonLines[] = $assocFields;
+            $jsonLines[] = $assocColumns;
         }
         $this->itemsJson = json_encode($jsonLines);
     }
@@ -368,7 +368,7 @@ class ConvertToSearchableHtmlPage
      * @param       $value
      * @param       $condition
      * @param mixed $compareTo the value to which to compare
-     *                         Type juggling -> the content of the field is compared to a number when this is an number
+     *                         Type juggling -> the content of the column is compared to a number when this is an number
      *
      * @return bool
      */
@@ -403,9 +403,10 @@ class ConvertToSearchableHtmlPage
 
     public function replacePlaceholdersInHtmlTemplate()
     {
-        $this->indexHtml = preg_replace('/FIELDSJSONREPLACE/', $this->fieldsJson, $this->indexHtml);
+        // "columns" are called "fields" in b-table
+        $this->indexHtml = preg_replace('/FIELDSJSONREPLACE/', $this->columnsJson, $this->indexHtml);
         $this->indexHtml = preg_replace('/ITEMSJSONREPLACE/', $this->itemsJson, $this->indexHtml);
-        $this->indexHtml = preg_replace('/SORTBYFIELDREPLACE/', $this->initialSortField, $this->indexHtml);
+        $this->indexHtml = preg_replace('/SORTBYFIELDREPLACE/', $this->initialSortColumn, $this->indexHtml);
         $this->indexHtml = preg_replace('/TITLEREPLACE/', $this->pageTitle, $this->indexHtml);
     }
 
@@ -414,7 +415,7 @@ class ConvertToSearchableHtmlPage
      */
     public function process()
     {
-        $this->prepareFieldNamesJson();
+        $this->prepareColumnNamesJson();
         $this->prepareItemsJson();
         $this->replacePlaceholdersInHtmlTemplate();
     }

@@ -34,7 +34,7 @@ $run = new ConvertToSearchableHtmlPage("import.tsv");
 // (b-table sorting does a string compare on strings which causes problems with negative numbers)
 $run->convertColumnToFloat(10);
 // sort initially by the first field
-$run->setInitialSortFieldIndex(0);
+$run->setInitialSortColumnIndex(0);
 // hide a column
 $run->hideColumns(11);
 // add field options (see b-table of Bootstrapvue) info is blue, danger is red
@@ -62,9 +62,9 @@ $run->setRowOptions(10, 'success',
     ConvertToSearchableHtmlPage::ONLY_CELL
 );
 // define the columns that will be searchable
-$run->setSearchableFields([0, 2, 7]);
+$run->setSearchableColumns([0, 2, 7]);
 // set title of the page
-$run->setTitle("Recherche dans la table");
+$run->setTitle("Table search");
 // save the resulting html
 $run->processAndSave('index.html');
 ```
