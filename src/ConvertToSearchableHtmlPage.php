@@ -198,8 +198,15 @@ class ConvertToSearchableHtmlPage
      * @param string $htmlTemplate
      */
     public function __construct($tsvFilename,
-        $delimiter = "\t", $htmlTemplate = ROOT.'/template/index.template.html')
+        $delimiter = "\t", $htmlTemplate = 'index.template.html')
     {
+        if (!file_exists($htmlTemplate)) {
+            if (file_exists(ROOT.'/template/'.$htmlTemplate)) {
+                $htmlTemplate = ROOT.'/template/'.$htmlTemplate;
+            } elseif ($htmlTemplate == "striped") {
+                $htmlTemplate = ROOT.'/template/index.striped.template.html';
+            }
+        }
         $this->setDelimiter($delimiter);
         $this->loadHtmlTemplate($htmlTemplate);
         $this->importTsv($tsvFilename);
