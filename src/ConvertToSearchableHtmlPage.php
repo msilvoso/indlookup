@@ -319,6 +319,23 @@ class ConvertToSearchableHtmlPage
     }
 
     /**
+     * Replace a string in every cell of a column
+     * Initially added to replace newlines/carriage return by '<br>'
+     *
+     * @param $index integer
+     * @param $search string|string[]
+     * @param $replace string|string[]
+     */
+    public function replaceStringInColumn($index, $search, $replace)
+    {
+        $convertedTsv = $this->getTsvLinesArray();
+        foreach ($convertedTsv as $key => $value) {
+            $convertedTsv[$key][$index] = str_replace($search, $replace, $convertedTsv[$key][$index]);
+        }
+        $this->setTsvLinesArray($convertedTsv);
+    }
+
+    /**
      * create the JSON that will be passed to the b-table for the column names
      */
     public function prepareColumnNamesJson()

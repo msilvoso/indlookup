@@ -61,6 +61,8 @@ $run->setRowOptions(10, 'success',
     9,
     ConvertToSearchableHtmlPage::ONLY_CELL
 );
+// replace cr/nl by '<br>'
+$run->replaceStringInColumn(0, "\r\n", "</br>");
 // define the columns that will be searchable
 $run->setSearchableColumns([0, 2, 7]);
 // set title of the page
