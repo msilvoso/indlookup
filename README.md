@@ -62,7 +62,10 @@ $run->setRowOptions(10, 'success',
     ConvertToSearchableHtmlPage::ONLY_CELL
 );
 // replace cr/nl by '<br>'
-$run->replaceStringInColumn(0, "\r\n", "</br>");
+$run->replaceStringInColumn(0, ["\n", "\r\n"], ["</br>", "</br>"]);
+$run->renderRawHtml(7);
+// set a new item limit for the display of the elements
+$run->setItemLimit(400);
 // define the columns that will be searchable
 $run->setSearchableColumns([0, 2, 7]);
 // set title of the page
