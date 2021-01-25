@@ -221,6 +221,41 @@ class ConvertToSearchableHtmlPage
         $this->addTemplate('<template #cell('.$colName.')="data"><span v-html="data.value"></span></template>');
     }
 
+    /** @var string  add the striped attribute to the html */
+    private $bTableExtraAttrs = ["bordered", "hover"];
+
+    /**
+     * Concatenate extra b-table attributes and return them for replacement into the html
+     *
+     * @return string
+     */
+    public function getBTableExtraAttrs() {
+        return join(' ', $this->bTableExtraAttrs);
+    }
+
+    /**
+     * Add an attribute to the b-table
+     *
+     * @param $attr string
+     */
+    public function addBTableExtraAttrs($attr) {
+        $this->bTableExtraAttrs[] = $attr;
+    }
+
+    /**
+     * remove all b-table attributes
+     */
+    public function resetBTableExtraAttrs() {
+        $this->bTableExtraAttrs = [];
+    }
+
+    /**
+     *
+     */
+    public function setStriped() {
+        $this->bTableExtraAttrs = "striped";
+    }
+
     /** @var int initial item limit to display */
     private $itemLimit = 301;
 
@@ -248,8 +283,6 @@ class ConvertToSearchableHtmlPage
         if (!file_exists($htmlTemplate)) {
             if (file_exists(ROOT.'/template/'.$htmlTemplate)) {
                 $htmlTemplate = ROOT.'/template/'.$htmlTemplate;
-            } elseif ($htmlTemplate == "striped") {
-                $htmlTemplate = ROOT.'/template/index.striped.template.html';
             }
         }
         $this->setDelimiter($delimiter);
@@ -479,6 +512,7 @@ class ConvertToSearchableHtmlPage
         $this->indexHtml = preg_replace('/TITLEREPLACE/', $this->pageTitle, $this->indexHtml);
         $this->indexHtml = preg_replace('/ITEMLIMITREPLACE/', "$this->itemLimit", $this->indexHtml);
         $this->indexHtml = preg_replace('/BTABLETEMPLATESREPLACE/', $this->getTemplates(), $this->indexHtml);
+        $this->indexHtml = preg_replace('/BTABLEATTRSREPLACE/', $this->getBTableExtraAttrs(), $this->indexHtml);
     }
 
     /**

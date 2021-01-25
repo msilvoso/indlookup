@@ -64,6 +64,8 @@ $run->setRowOptions(10, 'success',
 // replace cr/nl by '<br>'
 $run->replaceStringInColumn(0, ["\n", "\r\n"], ["</br>", "</br>"]);
 $run->renderRawHtml(7);
+// add the striped attribute to the table
+$run->addBTableExtraAttrs('striped');
 // set a new item limit for the display of the elements
 $run->setItemLimit(400);
 // define the columns that will be searchable
