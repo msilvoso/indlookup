@@ -42,7 +42,7 @@
         <div v-show="rows <= itemLimit ">
             <b-table id="lookupTable" :items="items" :fields="fields" :sort-by.sync="sortBy"
                      :sort-desc.sync="sortDesc" :per-page="perPage" :current-page="currentPage"
-                     bordered hover ></b-table>
+                     bordered hover >BTABLETEMPLATESREPLACE</b-table>
             <div v-show="rows > perPage">
                 <div class="mt-1">
                     <b-pagination v-model="currentPage" pills :total-rows="rows" :per-page="perPage" :limit="pageLimit" aria-controls="lookupTable" first-number last-number size="lg"></b-pagination>
@@ -58,7 +58,7 @@
                     rows: 0,
                     pageLimit: 3,
                     perPage: 15,
-                    itemLimit: 301,
+                    itemLimit: ITEMLIMITREPLACE,
                     currentPage: 1,
                     contentFilterInput: "",
                     normalizedSearchArray: "",
@@ -72,6 +72,7 @@
             },
             mounted() {
                 this.rows = this.itemTable.length;
+                this.refreshTable();
             },
             methods: {
                 refreshTable() {

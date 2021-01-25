@@ -186,6 +186,51 @@ class ConvertToSearchableHtmlPage
         return $resultingOptions;
     }
 
+    /** @var array  extra templating info applied to fields */
+    private $templates = [];
+
+    /**
+     * @return array
+     */
+    public function getTemplates()
+    {
+        return join('', $this->templates);
+    }
+
+    /**
+     * @param array $templates
+     */
+    public function addTemplate($template)
+    {
+        $this->templates[] = $template;
+    }
+
+    /**
+     * renderRawHtml adds the needed template to the b-table to render raw html for a column
+     * the column parameter can be the name of the column or the index
+     *
+     * @param $column mixed
+     */
+    public function renderRawHtml($column)
+    {
+        if (is_numeric($column)) {
+            $colName = $this->getColumnName($column);
+        } else {
+            $colName = $column;
+        }
+        $this->addTemplate('<template #cell('.$colName.')="data"><span v-html="data.value"></span></template>');
+    }
+
+    /** @var int initial item limit to display */
+    private $itemLimit = 301;
+
+    /**
+     * @param int $itemLimit
+     */
+    public function setItemLimit($itemLimit)
+    {
+        $this->itemLimit = $itemLimit;
+    }
 
     //
     // methods
@@ -432,6 +477,8 @@ class ConvertToSearchableHtmlPage
         $this->indexHtml = preg_replace('/ITEMSJSONREPLACE/', $this->itemsJson, $this->indexHtml);
         $this->indexHtml = preg_replace('/SORTBYFIELDREPLACE/', $this->initialSortColumn, $this->indexHtml);
         $this->indexHtml = preg_replace('/TITLEREPLACE/', $this->pageTitle, $this->indexHtml);
+        $this->indexHtml = preg_replace('/ITEMLIMITREPLACE/', "$this->itemLimit", $this->indexHtml);
+        $this->indexHtml = preg_replace('/BTABLETEMPLATESREPLACE/', $this->getTemplates(), $this->indexHtml);
     }
 
     /**
