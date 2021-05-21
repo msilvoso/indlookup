@@ -544,13 +544,12 @@ class ConvertToSearchableHtmlPage
      *
      * @return false|string
      */
-    private function normalizeChars($stringToNormalize, $removeSpaces = false)
+    private function normalizeChars($stringToNormalize, bool $removeSpaces = false)
     {
         if ($removeSpaces) {
             $stringToNormalize = preg_replace('/\s/', '', $stringToNormalize);
         }
         $stringToNormalize = mb_convert_case($stringToNormalize, MB_CASE_LOWER);
-        $stringToNormalize = iconv('UTF-8', 'ASCII//TRANSLIT', $stringToNormalize);
-        return $stringToNormalize;
+        return iconv('UTF-8', 'ASCII//TRANSLIT', $stringToNormalize);;
     }
 }
