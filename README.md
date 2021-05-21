@@ -75,3 +75,12 @@ $run->setTitle("Table search");
 // save the resulting html
 $run->processAndSave('index.html');
 ```
+#### About the search
+To allow generic searches without special accented characters, so that for instance the search "frede" returns "Frédéric" 
+you should correctly set the locale in your php.ini file. See https://www.php.net/manual/en/function.iconv
+
+Example:
+```ini
+[intl] 
+intl.default_locale = 'en_GB.utf8'
+```
