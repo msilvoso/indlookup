@@ -9,7 +9,7 @@
     <link
             type="text/css"
             rel="stylesheet"
-            href="https://unpkg.com/bootstrap@4.5.3/dist/css/bootstrap.min.css"
+            href="https://unpkg.com/bootstrap@latest/dist/css/bootstrap.min.css"
     />
     <link
             type="text/css"
@@ -29,21 +29,21 @@
     <b-form inline>
         <b-row>
             <b-col cols="8">
-                <b-input-group prepend="Filtre" xl="8" class="mt-3">
+                <b-input-group prepend="Filtre" xl="8">
                     <b-form-input type="search" autofocus="true" autocomplete="off"
                                   placeholder="Introduisez ici votre filtre de recherche!" debounce="200"
                                   v-model="contentFilterInput" @update="refreshTable"></b-form-input>
                 </b-input-group>
             </b-col>
             <b-col cols="2">
-                <b-input-group prepend="Limite" xl="2" class="mt-3">
+                <b-input-group prepend="Limite" xl="2">
                     <b-form-input id="itemLimitBox" type="number" autocomplete="off" debounce="200"
                                   placeholder="Limite d'enregistrements" v-model="itemLimit"
                                   @update="refreshTable"></b-form-input>
                 </b-input-group>
             </b-col>
             <b-col cols="2">
-                <b-input-group prepend="Enr./Page" xl="2" class="mt-3">
+                <b-input-group prepend="Enr./Page" xl="2">
                     <b-form-input id="perPageBox" type="number" autocomplete="off" debounce="200"
                                   placeholder="Enregistrements par page" v-model="perPage"
                                   @update="refreshTable"></b-form-input>
